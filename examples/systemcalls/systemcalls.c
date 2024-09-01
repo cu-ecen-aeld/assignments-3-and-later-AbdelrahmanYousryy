@@ -1,5 +1,11 @@
 #include "systemcalls.h"
-
+#include <stdio.h>
+#include <stdlib.h>
+#include <unistd.h>
+#include <sys/wait.h>
+#include <stdarg.h>
+#include <stdbool.h>
+#include <fcntl.h>
 /**
  * @param cmd the command to execute with system()
  * @return true if the command in @param cmd was executed
@@ -15,9 +21,10 @@ bool do_system(const char *cmd)
  *  Call the system() function with the command set in the cmd
  *   and return a boolean true if the system() call completed with success
  *   or false() if it returned a failure
-*/
-
-    return true;
+*/  
+    int res = system(cmd);
+    if(res == 0)return true;
+    else return false;
 }
 
 /**
@@ -58,10 +65,38 @@ bool do_exec(int count, ...)
  *   as second argument to the execv() command.
  *
 */
-
     va_end(args);
+    pid_t pid ;
+    pid = fork();
+    
+    if(pid > 0)
+    {
+      int status;
+      if(waitpid(pid,&status,0)==-1)
+    	{
+   	  perror("wait");
+    	  exit(EXIT_FAILURE);
+    	}
+    	// Check if the child process terminated normally
+       return (WIFEXITED(status) && WEXITSTATUS(status) == 0);
+    
+    }
+    else if(pid == 0)
+    {	
+      if(execv(command[0],command)==-1)
+      {
+        perror("execv");
+        exit(1);
+      }
+    
+    }
+    else
+    {
+       perror("fork");
+    }
+  
 
-    return true;
+    return false;
 }
 
 /**
@@ -94,6 +129,45 @@ bool do_exec_redirect(const char *outputfile, int count, ...)
 */
 
     va_end(args);
+    
+    pid_t pid ;
+    pid = fork();
+    if(pid > 0)
+    {
+      int status;
+      if(waitpid(pid,&status,0)==-1)
+    	{
+   	  perror("wait");
+    	  exit(EXIT_FAILURE);
+    	}
+    	// Check if the child process terminated normally
+       return (WIFEXITED(status) && WEXITSTATUS(status) == 0);
+    
+    }
+    else if(pid == 0)
+    {
+      int fd = open(outputfile, O_WRONLY | O_CREAT | O_TRUNC , 0644);
+      if(fd<0){exit(1);}
+      if(dup2(fd,STDOUT_FILENO)<0)
+      {
+         close(fd);
+         exit(1);
+      }
+      
+      close(fd);
+      	
+      if(execv(command[0],command)==-1)
+      {
+        perror("execv");
+        exit(1);
+      }
+    
+    }
+    else
+    {
+       perror("fork");
+    }
+  
 
     return true;
 }
