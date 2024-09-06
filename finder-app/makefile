@@ -1,11 +1,23 @@
-CC := gcc
+# Check if CROSS_COMPILE is set, otherwise use gcc
+CROSS_COMPILE ?= aarch64-none-linux-gnu-
 
-ifdef CROSS_COMPILE
-	CC := $(CROSS_COMPILE)gcc
-endif
+#$(info STAGE1 CROSS_COMPILE = $(CROSS_COMPILE))
 
-all: writer.c
-	$(CC) writer.c -o writer
+CC := $(shell if which ${CROSS_COMPILE} > /dev/null 2>&1; then echo "${CROSS_COMPILE}"; else echo "${CROSS_COMPILE}gcc"; fi )
+
+#$(info STAGE2 CC = $(CC))
+# Compiler flags and other variables
+CFLAGS := -Wall -O2
+SRC := writer.c
+TARGET := writer
+
+# Target rule
+all: $(TARGET)
+
+$(TARGET): $(SRC)
+	$(CC) $(CFLAGS) -o $@ $<
 
 clean:
-	rm -f writer
+	rm -f $(TARGET)
+
+.PHONY: all clean
