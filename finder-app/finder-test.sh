@@ -33,7 +33,7 @@ rm -rf "${WRITEDIR}"
 # create $WRITEDIR if not assignment1
 assignment=$(cat /etc/finder-app/conf/assignment.txt)
 
-if [ $assignment != 'assignment3' ]
+if [ $assignment != 'assignment1' ]
 then
 	mkdir -p "$WRITEDIR"
 
@@ -53,10 +53,10 @@ fi
 
 for i in $( seq 1 $NUMFILES)
 do
-	./writer "$WRITEDIR/${username}$i.txt" "$WRITESTR"
+	writer "$WRITEDIR/${username}$i.txt" "$WRITESTR"
 done
 
-OUTPUTSTRING=$(/usr/bin/finder.sh "$WRITEDIR" "$WRITESTR")
+OUTPUTSTRING=$(finder.sh "$WRITEDIR" "$WRITESTR")
 
 # Write the output to /tmp/assignment4-result.txt
 echo "$OUTPUTSTRING" > /tmp/assignment4-result.txt
