@@ -1,8 +1,8 @@
 /******************************************************************************
 * Title                 :   aesdsocket
 * @file                 :   aesdsocket.c
-* @author               :   AMR
-* @date                 :   02/09/2024
+* @author               :   Abdo
+* @date                 :   02/10/2024
 * @details              :   Linux System Programming and Introduction to Buildroot Assignment 5
 *                            
 ******************************************************************************/
